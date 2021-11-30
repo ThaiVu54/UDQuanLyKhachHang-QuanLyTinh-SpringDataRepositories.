@@ -53,7 +53,7 @@ public class CustomerController {
         Optional<Customer> customer = customerService.findById(id);
         if (customer.isPresent()) {
             ModelAndView modelAndView = new ModelAndView("/customer/edit");
-            modelAndView.addObject("customer", customer);
+            modelAndView.addObject("customer", customer.get());
             return modelAndView;
         } else {
             ModelAndView modelAndView = new ModelAndView("error");
