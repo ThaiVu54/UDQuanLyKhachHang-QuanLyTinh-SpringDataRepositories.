@@ -5,6 +5,9 @@ import com.thai.customers.model.Province;
 import com.thai.customers.service.ICustomerService;
 import com.thai.customers.service.IProvinceService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
@@ -20,7 +23,7 @@ public class CustomerController {
     private IProvinceService provinceService;
 
     @ModelAttribute("provinces")
-    public Iterable<Province> provinces(){
+    public Iterable<Province> provinces() {
         return provinceService.findAll();
     }
 
@@ -40,13 +43,33 @@ public class CustomerController {
         return modelAndView;
     }
 
-    @GetMapping("")
-    public ModelAndView listForm() {
-        Iterable<Customer> customers = customerService.findAll();
-        ModelAndView modelAndView = new ModelAndView("/customer/list");
-        modelAndView.addObject("customers", customers);
+//    @GetMapping
+//    public ModelAndView listForm(@PageableDefault(value = 4) Pageable pageable){
+//        Page<Customer> page = customerService.fillAll(pageable);
+//        ModelAndView modelAndView = new ModelAndView("/customer/list");
+//        modelAndView.addObject("customers",  page);
+//        return modelAndView;
+//    }
+
+    @GetMapping
+    public ModelAndView listForm(@RequestParam("search") Optional<String> search, Pageable pageable) {
+        Page<Customer> customers;
+        if (search.isPresent()){
+            customers = customerService.findAllByFirstNameContaining(search.get(), pageable);
+        }else {
+            customers = customerService.fillAll(pageable);
+        } ModelAndView modelAndView = new ModelAndView("/customer/list");
+        modelAndView.addObject("customers",customers);
         return modelAndView;
     }
+
+//    @GetMapping("")
+//    public ModelAndView listForm() {
+//        Iterable<Customer> customers = customerService.findAll();
+//        ModelAndView modelAndView = new ModelAndView("/customer/list");
+//        modelAndView.addObject("customers", customers);
+//        return modelAndView;
+//    }
 
     @GetMapping("/edit-customer/{id}")
     public ModelAndView editForm(@PathVariable Long id) {
@@ -84,7 +107,7 @@ public class CustomerController {
     }
 
     @PostMapping("/delete-customer")
-    public String deleteCustomer(@ModelAttribute ("customer") Customer customer){
+    public String deleteCustomer(@ModelAttribute("customer") Customer customer) {
         customerService.remove(customer.getId());
 //        ModelAndView modelAndView = new ModelAndView("/")
         return "redirect:/customers";
