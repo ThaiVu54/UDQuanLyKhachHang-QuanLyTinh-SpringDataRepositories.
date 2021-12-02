@@ -72,7 +72,7 @@ public class CustomerController {
 //    }
 
     @GetMapping("/edit-customer/{id}")
-    public ModelAndView editForm(@PathVariable Long id) {
+    public ModelAndView editForm(@PathVariable Long id) throws Exception {
         Optional<Customer> customer = customerService.findById(id);
         if (customer.isPresent()) {
             ModelAndView modelAndView = new ModelAndView("/customer/edit");
@@ -94,7 +94,7 @@ public class CustomerController {
     }
 
     @GetMapping("/delete-customer/{id}")
-    public ModelAndView deleteForm(@PathVariable Long id) {
+    public ModelAndView deleteForm(@PathVariable Long id) throws Exception {
         Optional<Customer> customer = customerService.findById(id);
         if (customer.isPresent()) {
             ModelAndView modelAndView = new ModelAndView("/customer/delete");
@@ -111,5 +111,16 @@ public class CustomerController {
         customerService.remove(customer.getId());
 //        ModelAndView modelAndView = new ModelAndView("/")
         return "redirect:/customers";
+    }
+    @GetMapping("/{id}")
+    public ModelAndView showInfo(@PathVariable Long id){
+        try {
+            Optional<Customer> customer = customerService.findById(id);
+            ModelAndView modelAndView = new ModelAndView("/customer/infor");
+            modelAndView.addObject("customer",customer);
+            return modelAndView;
+        } catch (Exception e) {
+            return new ModelAndView("redirect:/customers");
+        }
     }
 }
